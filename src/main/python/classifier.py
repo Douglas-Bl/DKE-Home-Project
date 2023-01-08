@@ -152,18 +152,6 @@ def create_classifier(sparql):
             # date = [year, month]
             date = [int(date[:4]), int(date[5:7])]
 
-            """
-            if author not in authors and mention not in mentions:
-                X.append([0, 0, citation_count, date[0], date[1]])
-            elif author not in authors:
-                X.append([0, mentions[mention]["score"], citation_count, date[0], date[1]])
-            elif mention not in mentions:
-                X.append([authors[author]["score"], 0, citation_count, date[0], date[1]])
-            else:
-                X.append([authors[author]["score"], mentions[mention]["score"], citation_count, date[0], date[1]])
-            Y.append(rating)
-            """
-
             # prepare training data with their labels
             X.append([authors[author]["score"], mentions[mention]["score"], citation_count, date[0], date[1]])
             Y.append(rating)
