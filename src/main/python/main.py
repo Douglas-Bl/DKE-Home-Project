@@ -2,6 +2,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 from eval.eval import evaluate
 from src.main.python.classifier import create_classifier
 from src.main.python.test_classifier import test_classification
+from joblib import dump, load
 
 
 def main():

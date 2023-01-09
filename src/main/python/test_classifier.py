@@ -22,10 +22,10 @@ def test_classification(sparql, clf, authors, mentions):
                                 PREFIX schema:<http://schema.org/>
                                 PREFIX dbr:<http://dbpedia.org/resource/>
                                 PREFIX nif:<http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#>
-                                SELECT ?date ?claim ?claimText ?author ?mention COUNT(?citation) AS ?citation_count ?rating WHERE {
+                                SELECT ?date ?claim ?claimText ?author ?mention COUNT(?citation) AS ?citation_count WHERE {
     
                                 ?claim_review schema:itemReviewed <""" + claim_id + """> .
-                                ?claim_review schema:reviewRating ?rating ; schema:itemReviewed ?claim .
+                                ?claim_review schema:itemReviewed ?claim .
                                 ?claim schema:text ?claimText
     
                                 OPTIONAL {?claim schema:author ?authorOpt}
@@ -38,8 +38,6 @@ def test_classification(sparql, clf, authors, mentions):
                                 BIND(COALESCE(?mentionOpt, "") AS ?mention)
                                 BIND(COALESCE(?dateOpt, "2020-06-15"^^xsd:date) AS ?date)
                                 BIND(COALESCE(?authorOpt, "") AS ?author)
-    
-                                FILTER regex(?rating, "http://data.gesis.org/claimskg/rating/normalized", "i")
                                 }
                             """
 
@@ -54,19 +52,8 @@ def test_classification(sparql, clf, authors, mentions):
                 claim_text = r["claimText"]["value"]
                 author = r["author"]["value"]
                 mention = r["mention"]["value"]
-                rating = r["rating"]["value"]
                 date = r["date"]["value"]
                 citation_count = int(r["citation_count"]["value"])
-
-                # normalize rating of the claim
-                if rating.endswith("TRUE"):
-                    rating = "TRUE"
-                elif rating.endswith("FALSE"):
-                    rating = "FALSE"
-                elif rating.endswith("MIXTURE"):
-                    rating = "NEITHER"
-                elif rating.endswith("OTHER"):
-                    rating = "NEITHER"
 
                 # date = [year, month]
                 date = [int(date[:4]), int(date[5:7])]
@@ -77,13 +64,13 @@ def test_classification(sparql, clf, authors, mentions):
                     # if claim not initialized
                     if claim not in claim_dict:
                         claim_dict[claim] = {"author_score": 0, "mention_score": 0, "citation_count": citation_count,
-                                             "mentions_count": 0, "rating": rating, "date": date, "text": claim_text}
+                                             "mentions_count": 0, "date": date, "text": claim_text}
                 ## if only mention didn't appear in training set
                 elif author not in authors:
                     # if claim not initialized
                     if claim not in claim_dict:
                         claim_dict[claim] = {"author_score": 0, "mention_score": mentions[mention]["score"],
-                                             "citation_count": citation_count, "mentions_count": 1, "rating": rating,
+                                             "citation_count": citation_count, "mentions_count": 1,
                                              "date": date, "text": claim_text}
                     # if claim has multiple mentions
                     else:
@@ -94,7 +81,7 @@ def test_classification(sparql, clf, authors, mentions):
                     # if claim not initialized
                     if claim not in claim_dict:
                         claim_dict[claim] = {"author_score": authors[author]["score"], "mention_score": 0,
-                                             "citation_count": citation_count, "mentions_count": 0, "rating": rating,
+                                             "citation_count": citation_count, "mentions_count": 0,
                                              "date": date, "text": claim_text}
                 ## if both author and mention are in training set
                 else:
@@ -102,7 +89,7 @@ def test_classification(sparql, clf, authors, mentions):
                     if claim not in claim_dict:
                         claim_dict[claim] = {"author_score": authors[author]["score"],
                                              "mention_score": mentions[mention]["score"], "citation_count": citation_count,
-                                             "mentions_count": 1, "rating": rating, "date": date, "text": claim_text}
+                                             "mentions_count": 1, "date": date, "text": claim_text}
                     # if claim has multiple mentions
                     else:
                         claim_dict[claim]["mention_score"] += mentions[mention]["score"]
