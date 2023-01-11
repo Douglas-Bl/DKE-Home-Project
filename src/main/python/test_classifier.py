@@ -1,8 +1,8 @@
 import os
 import csv
+from SPARQLWrapper import SPARQLWrapper, JSON
 
-
-def test_classification(sparql, clf, authors, mentions):
+def test_classification(clf, authors, mentions):
 
     # get claims of training set
     test_ids = set()
@@ -13,6 +13,11 @@ def test_classification(sparql, clf, authors, mentions):
 
     # dict with all features needed for prediction of a claim
     claim_dict = {}
+
+    sparql = SPARQLWrapper(
+        "https://data.gesis.org/claimskg/sparql"
+    )
+    sparql.setReturnFormat(JSON)
 
     for claim_id in test_ids:
 

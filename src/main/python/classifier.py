@@ -4,7 +4,7 @@ from sklearn import tree
 import csv
 
 
-def create_classifier(sparql):
+def create_classifier():
 
     # get claims of training set to be able to ignore those when training
     test_ids = set()
